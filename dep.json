@@ -1,0 +1,28 @@
+{
+   "1": {
+      "1": {
+         "repoName": "tms/shipment",
+         "branchName": "release/3.0.0"
+      }
+   },
+   "2": {
+      "1": {
+         "repoName": "tms/authentication",
+         "branchName": "release/3.0.0"
+      },
+      "2": {
+         "repoName": "tms/tms-ui",
+         "branchName": "release/3.0.0"
+      }
+   },
+   "3": {
+      "1": {
+         "repoName": "mta/ext-catalog",
+         "branchName": "develop"
+      },
+      "2": {
+         "repoName": "mta/ext-catalog-ui",
+         "branchName": "develop"
+      }
+   }
+}
