@@ -14,35 +14,49 @@ class AppThread(Thread):
         self.listOfApp = listOfApp
 
     def getVersion(self, app):
-    	url = "http://likhesh:likhesh@localhost:8080/job/"+app.appName+"/lastStableBuild/api/json"
+    	url = self.constructPollAPIURL(app.appName)
+        print 'Poll API URL ', url
         response = requests.get(url);
-        content = json.loads(response.content)
-        parameters = content['actions'][0]['parameters']
-        for parameter in parameters:
-            paramName = parameter['name']
-            if (paramName == 'version'):
-                lastSuccessBuildVersion = parameter['value']
-                print 'version is ', lastSuccessBuildVersion
-                break
-
-        print 'final version is ', lastSuccessBuildVersion
-
         buildNumberPostfix = "-1";
+        #print 'response', response.content
         versionToUse = app.initialVersion + buildNumberPostfix;
-
-        appVersion = app.initialVersion;
-        if lastSuccessBuildVersion and lastSuccessBuildVersion.startswith(appVersion):
-            lastIndex = lastSuccessBuildVersion.rfind("-");
-            if lastIndex > 1:
-	            buildNumber = lastSuccessBuildVersion[lastIndex+1:]
-	            print "LAST", lastSuccessBuildVersion
-	            print "BUILD", buildNumber
-	            buildNumber = int(buildNumber) + 1;
-	            buildNumberPostfix = '-' + str(buildNumber)
-	            print 'buildNumber ', buildNumber
-	            versionToUse = appVersion + buildNumberPostfix
-        print versionToUse
+        if response:
+            content = json.loads(response.content)
+            #parameters = content['actions'][0]['parameters']
+            actions = content['actions']
+            for action in actions:
+                #print 'action', action
+                if action.get('parameters') == None:
+                    continue
+                parameters = action['parameters']
+                #print 'parameters', parameters
+                if parameters:
+                    for parameter in parameters:
+                        paramName = parameter['name']
+                        if (paramName == 'version'):
+                            lastSuccessBuildVersion = parameter['value']
+                            #print 'version is ', lastSuccessBuildVersion
+                            break
+                    print 'lastSuccessBuildVersion version is ', lastSuccessBuildVersion
+                    appVersion = app.initialVersion;
+                    if lastSuccessBuildVersion and lastSuccessBuildVersion.startswith(appVersion):
+                        lastIndex = lastSuccessBuildVersion.rfind("-");
+                        if lastIndex > 1:
+            	            buildNumber = lastSuccessBuildVersion[lastIndex+1:]
+            	            #print "LAST", lastSuccessBuildVersion
+            	            #print "BUILD", buildNumber
+            	            buildNumber = int(buildNumber) + 1;
+            	            buildNumberPostfix = '-' + str(buildNumber)
+            	            #print 'buildNumber ', buildNumber
+            	            versionToUse = appVersion + buildNumberPostfix
+                    break
+        print 'version to use is for ', app.appName ,'is ', versionToUse
         return versionToUse
+
+    def constructPollAPIURL(self, appname):
+        url = jenkinProperty.jenkinsSchema + jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort;
+        url = url + "/job/"+appname+"/lastStableBuild/api/json"
+        return url
 
     def constructBuildAPIURL(self, appname, branch, version):
     	url = jenkinProperty.jenkinsSchema + jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort;
@@ -60,7 +74,6 @@ class AppThread(Thread):
 	    	version = self.getVersion(app)
 
 	        url = self.constructBuildAPIURL(app.appName, app.branchName, version)
-	        # "http://"+jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort+"/job/"+app.appName+"/buildWithParameters?token=KK044zgm0POwZK5zm4IMf2upUbIDnfy8&version="+app.initialVersion+"&branch="+app.branchName
 	        print 'api url is ', url 
 	        requests.post(url, headers=headers)
 	        time.sleep(jenkinProperty.pollingTime)
@@ -84,18 +97,6 @@ class AppThread(Thread):
 
 	            print "build ", building
 	            print "result ", result
-
-
-	        # print "final result ", result
-            #while 
-            #building = res[buildLength + 10 : buildLength + 11]
-            #result = res[resultLength + 9 : resultLength + 10]
-            # if building == "t":
-            # 	threading.Timer(30.0, checkThreadState(building, result, self.url, headers)).start()
-            # 	buildingFinished = checkThreadState(building, result,self.appName)
-            # 	print "Building Finish :" + buildingFinished
-
-
 
 class App(object):
 
