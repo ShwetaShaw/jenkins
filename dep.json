@@ -1,28 +1,33 @@
 {
    "1": {
       "1": {
-         "repoName": "tms/shipment",
-         "branchName": "release/3.0.0"
+         "appName": "shipment",
+         "initialVersion": "1.2.3",
+         "branchName": "develop"
       }
    },
    "2": {
       "1": {
-         "repoName": "tms/authentication",
-         "branchName": "release/3.0.0"
+         "appName": "authentication",
+         "initialVersion": "1.2.3",
+         "branchName": "develop"
       },
       "2": {
-         "repoName": "tms/tms-ui",
-         "branchName": "release/3.0.0"
+         "appName": "tms-ui",
+         "initialVersion": "1.3.4",
+         "branchName": "release/1.3.4"
       }
    },
    "3": {
       "1": {
-         "repoName": "mta/ext-catalog",
+         "appName": "ext-catalog",
+         "initialVersion": "1.5.3",
          "branchName": "develop"
       },
       "2": {
-         "repoName": "mta/ext-catalog-ui",
-         "branchName": "develop"
+         "appName": "ext-catalog-ui",
+         "initialVersion": "1.8.4",
+         "branchName": "release/1.8.4"
       }
    }
 }
