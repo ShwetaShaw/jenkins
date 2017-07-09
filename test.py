@@ -31,33 +31,63 @@ class AppThread(Thread):
     def run(self):
     	headers={"Jenkins-Crumb": "8caec0e2fd3b0793f98d83fc506a2f15"}
         print "Start building "+ self.appName
-        url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/buildWithParameters?token=KK044zgm0POwZK5zm4IMf2upUbIDnfy8&version="+self.appVersion+"&branch="+self.branchName
-        requests.post(url, headers=headers)
-        #if self.processType == 'POLL':
-        print "Start polling "+ self.appName
-        url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/lastBuild/api/json"
-        response = requests.post(url, headers=headers)
+
+        url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/lastStableBuild/api/json"
+        response = requests.get(url);
         content = json.loads(response.content)
-        print "lastBuild response ", content
-        building = content['building']
-        result = content['result']
-        time.sleep(5)
-        print "build ", building
-        print "result ", result
+        parameters = content['actions'][0]['parameters']
+        for parameter in parameters:
+            paramName = parameter['name']
+            if (paramName == 'version'):
+                lastSuccessBuildVersion = parameter['value']
+                print 'version is ', lastSuccessBuildVersion
+                break
 
-        while building == True:
-            time.sleep(5)
-            url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/lastBuild/api/json"
-            response = requests.get(url)
-            content = json.loads(response.content)
-            building = content['building']
-            result = content['result']
+        print 'final version is ', lastSuccessBuildVersion
 
-            print "build ", building
-            print "result ", result
+        buildNumberPostfix = "-1";
+        versionToUse = self.appVersion + buildNumberPostfix;
+
+        appVersion = self.appVersion;
+        if lastSuccessBuildVersion and lastSuccessBuildVersion.startswith(appVersion):
+            lastIndex = lastSuccessBuildVersion.rfind("-");
+            buildNumber = lastSuccessBuildVersion[lastIndex+1:]
+            buildNumber = int(buildNumber) +1;
+            buildNumberPostfix = '-' + str(buildNumber)
+            print 'buildNumber ', buildNumber
 
 
-        print "final result ", result
+        versionToUse = appVersion + buildNumberPostfix
+
+        print versionToUse
+
+        # url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/buildWithParameters?token=KK044zgm0POwZK5zm4IMf2upUbIDnfy8&version="+self.appVersion+"&branch="+self.branchName
+        # requests.post(url, headers=headers)
+        # #if self.processType == 'POLL':
+        # print "Start polling "+ self.appName
+        # url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/lastBuild/api/json"
+        # response = requests.post(url, headers=headers)
+        # content = json.loads(response.content)
+        # print "lastBuild response ", content
+        # building = content['building']
+        # result = content['result']
+        # time.sleep(5)
+        # print "build ", building
+        # print "result ", result
+
+        # while building == True:
+        #     time.sleep(5)
+        #     url = "http://lrathod:lrathod@localhost:8080/job/"+self.appName+"/lastBuild/api/json"
+        #     response = requests.get(url)
+        #     content = json.loads(response.content)
+        #     building = content['building']
+        #     result = content['result']
+
+        #     print "build ", building
+        #     print "result ", result
+
+
+        # print "final result ", result
             #while 
             #building = res[buildLength + 10 : buildLength + 11]
             #result = res[resultLength + 9 : resultLength + 10]
@@ -130,7 +160,7 @@ for i in parallel:
 # parallelApp[0][0].displayDetails()
 
 
-thread1 = AppThread(1,"ext-catalog-ui","develop","3.0.1-1")
+thread1 = AppThread(1,"ext-catalog-ui","develop","3.0.1")
 # thread2 = MyThread(1,"tms-ui","release/3.0.0","3.0.0-SNAPSHOT","BUILD")
 
 thread1.start()
