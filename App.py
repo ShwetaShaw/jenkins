@@ -50,7 +50,7 @@ class AppThread(Thread):
             	            #print 'buildNumber ', buildNumber
             	            versionToUse = appVersion + buildNumberPostfix
                     break
-        print 'version to use is for ', app.appName ,'is ', versionToUse
+        print 'version to use for ', app.appName ,'is ', versionToUse
         return versionToUse
 
     def constructPollAPIURL(self, appname):
@@ -95,8 +95,11 @@ class AppThread(Thread):
 	            building = content['building']
 	            result = content['result']
 
-	            print "build ", building
-	            print "result ", result
+	            print "build status of ",app.appName, 'is ',  building
+	            print "result for ", app.appName, 'is ', result
+                if result != "SUCCESS":
+                    print 'Aborting build for ', app.appName, 'since build status is not ', result
+                    break
 
 class App(object):
 
