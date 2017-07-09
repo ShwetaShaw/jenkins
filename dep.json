@@ -1,33 +1,26 @@
 {
    "1": {
       "1": {
-         "appName": "tms-ship",
-         "initialVersion": "1.2.3",
-         "branchName": "develop"
-      }
-   },
-   "2": {
-      "1": {
          "appName": "tms-auth",
          "initialVersion": "1.2.3",
-         "branchName": "develop"
+         "branchName": "release/3.0.0"
       },
       "2": {
          "appName": "tms-ui",
          "initialVersion": "1.3.4",
-         "branchName": "release/1.3.4"
-      }
+         "branchName": "release/3.0.0"
+      }     
    },
-   "3": {
+   "2": {
       "1": {
          "appName": "ext-catalog",
-         "initialVersion": "1.5.3",
+         "initialVersion": "1.2.3",
          "branchName": "develop"
       },
       "2": {
          "appName": "ext-catalog-ui",
-         "initialVersion": "1.8.4",
-         "branchName": "release/1.8.4"
+         "initialVersion": "1.3.4",
+         "branchName": "develop"
       }
    }
 }
