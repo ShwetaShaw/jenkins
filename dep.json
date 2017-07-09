@@ -1,14 +1,14 @@
 {
    "1": {
       "1": {
-         "appName": "shipment",
+         "appName": "tms-ship",
          "initialVersion": "1.2.3",
          "branchName": "develop"
       }
    },
    "2": {
       "1": {
-         "appName": "authentication",
+         "appName": "tms-auth",
          "initialVersion": "1.2.3",
          "branchName": "develop"
       },
