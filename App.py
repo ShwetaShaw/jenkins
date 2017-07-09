@@ -14,7 +14,7 @@ class AppThread(Thread):
         self.listOfApp = listOfApp
 
     def getVersion(self, app):
-    	url = "http://lrathod:lrathod@localhost:8080/job/"+app.appName+"/lastStableBuild/api/json"
+    	url = "http://likhesh:likhesh@localhost:8080/job/"+app.appName+"/lastStableBuild/api/json"
         response = requests.get(url);
         content = json.loads(response.content)
         parameters = content['actions'][0]['parameters']
@@ -33,20 +33,20 @@ class AppThread(Thread):
         appVersion = app.initialVersion;
         if lastSuccessBuildVersion and lastSuccessBuildVersion.startswith(appVersion):
             lastIndex = lastSuccessBuildVersion.rfind("-");
-            buildNumber = lastSuccessBuildVersion[lastIndex+1:]
-            buildNumber = int(buildNumber) +1;
-            buildNumberPostfix = '-' + str(buildNumber)
-            print 'buildNumber ', buildNumber
-
-
-        versionToUse = appVersion + buildNumberPostfix
-
+            if lastIndex > 1:
+	            buildNumber = lastSuccessBuildVersion[lastIndex+1:]
+	            print "LAST", lastSuccessBuildVersion
+	            print "BUILD", buildNumber
+	            buildNumber = int(buildNumber) + 1;
+	            buildNumberPostfix = '-' + str(buildNumber)
+	            print 'buildNumber ', buildNumber
+	            versionToUse = appVersion + buildNumberPostfix
         print versionToUse
         return versionToUse
 
     def constructBuildAPIURL(self, appname, branch, version):
     	url = jenkinProperty.jenkinsSchema + jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort;
-    	url = url + "/job/"+app.appName+"/buildWithParameters?token="+jenkinProperty.apiToken+"&version="+app.initialVersion+"&branch="+app.branchName
+    	url = url + "/job/"+appname+"/buildWithParameters?token="+jenkinProperty.apiToken+"&version="+version+"&branch="+branch
     	return url
 
     def run(self):
@@ -59,7 +59,7 @@ class AppThread(Thread):
 	    	print "Start Building"
 	    	version = self.getVersion(app)
 
-	        url = self.constructBuildAPIURL(app.appName, version , app.branchName)
+	        url = self.constructBuildAPIURL(app.appName, app.branchName, version)
 	        # "http://"+jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort+"/job/"+app.appName+"/buildWithParameters?token=KK044zgm0POwZK5zm4IMf2upUbIDnfy8&version="+app.initialVersion+"&branch="+app.branchName
 	        print 'api url is ', url 
 	        requests.post(url, headers=headers)
