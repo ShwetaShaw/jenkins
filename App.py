@@ -82,7 +82,7 @@ class AppThread(Thread):
             version = self.getVersion(app)
 
             url = self.constructBuildAPIURL(app.appName, app.branchName, version)
-            # print 'api url is ', url 
+            # print 'api url is ', url
             requests.post(url, headers=headers)
             time.sleep(jenkinProperty.pollingTime)
             # print "Start Polling"
@@ -94,23 +94,22 @@ class AppThread(Thread):
             result = content['result']
             # print "build ", building
             # print "result ", result
-            global result1
+            # global result1
             while building == True:
-                global result1
                 time.sleep(jenkinProperty.pollingTime)
                 url = "http://"+jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort+"/job/"+app.appName+"/lastBuild/api/json"
                 response = requests.get(url)
                 content = json.loads(response.content)
                 building = content['building']
-                result1 = content['result']
+                result = content['result']
 
-            if result1 != "SUCCESS":
-                print 'Aborting build for ', app.appName, 'since build status is not ', result1
+            if result != "SUCCESS":
+                print 'Aborting build for ', app.appName, 'since build status is not ', result
                 break
 
-            print "RESULT "+result1
+            #print "RESULT "+result
             appDetails = []
-            if result1 == 'SUCCESS':
+            if result == 'SUCCESS':
                 appDetails.append(version)
                 appDetails.append(app.appName)
                 appsToDeploy.append(appDetails)
@@ -118,11 +117,32 @@ class AppThread(Thread):
         #Deploying
         i = 0
         for apps in appsToDeploy:
-            print "Deploying"
-            print self.getDeployJobName(apps[1])
-            url = self.constructDeployAPIURL(self.getDeployJobName(apps[1]),apps[0])
-            print url
+            print "Starting deployment of ", apps[1]
+            jobName = self.getDeployJobName(apps[1])
+            url = self.constructDeployAPIURL(jobName ,apps[0])
+            print 'deploying api using URL ', url
             requests.post(url, headers=headers)
+            
+            time.sleep(jenkinProperty.pollingTime)
+            
+            url = "http://"+jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort+"/job/"+jobName+"/lastBuild/api/json"
+            response = requests.get(url, headers=headers)
+            content = json.loads(response.content)
+            # print "lastBuild response ", content
+            building = content['building']
+            result = content['result']
+
+            # print "RESULT ", result
+            # print "BUILDING ", building
+
+            while building == True:
+                time.sleep(jenkinProperty.pollingTime)
+                url = "http://"+jenkinProperty.userName+":"+jenkinProperty.password+"@"+jenkinProperty.jenkinsHost+":"+jenkinProperty.jenkinsPort+"/job/"+jobName+"/lastBuild/api/json"
+                print "URL FOR DEPLOY POLL ", url
+                response = requests.get(url)
+                content = json.loads(response.content)
+                building = content['building']
+                result = content['result']
             i += 1
 
 class App(object):
